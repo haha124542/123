@@ -1,0 +1,86 @@
+# 畫中華民國國旗（含旋轉 90°、45°）
+from browser import document as doc
+from browser import html
+import math
+
+canvas = html.CANVAS(width = 600, height = 400)
+canvas.id = "taiwan_flag"
+brython_div = doc["brython_div1"]
+brython_div <= canvas
+
+canvas = doc["taiwan_flag"]
+ctx = canvas.getContext("2d")
+
+#---------------------------------------------------------
+# 封裝成可重複畫國旗的函式（維持你原本的比例）
+#---------------------------------------------------------
+def draw_flag():
+    flag_w = 200
+    flag_h = 130
+    circle_x = flag_w/4
+    circle_y = flag_h/4
+
+    # 紅地
+    ctx.fillStyle='rgb(255, 0, 0)'
+    ctx.fillRect(0,0,flag_w,flag_h)
+
+    # 青天
+    ctx.fillStyle='rgb(0, 0, 150)'
+    ctx.fillRect(0,0,flag_w/2,flag_h/2)
+
+    # 十二道光芒白日
+    ctx.beginPath()
+    star_radius = flag_w/8
+    angle = 0
+    for i in range(24):
+        angle += 5*math.pi*2/12
+        toX = circle_x + math.cos(angle)*star_radius
+        toY = circle_y + math.sin(angle)*star_radius
+        if i:
+            ctx.lineTo(toX, toY)
+        else:
+            ctx.moveTo(toX, toY)
+    ctx.closePath()
+    ctx.fillStyle = '#fff'
+    ctx.fill()
+
+    # 藍圈
+    ctx.beginPath()
+    ctx.arc(circle_x, circle_y, flag_w*17/240, 0, math.pi*2)
+    ctx.closePath()
+    ctx.fillStyle = 'rgb(0,0,149)'
+    ctx.fill()
+
+    # 白心
+    ctx.beginPath()
+    ctx.arc(circle_x, circle_y, flag_w/16, 0, math.pi*2)
+    ctx.closePath()
+    ctx.fillStyle = '#fff'
+    ctx.fill()
+
+
+#---------------------------------------------------------
+# 依角度旋轉國旗 (θ 為度數)，並畫在指定中心點 (cx, cy)
+#---------------------------------------------------------
+def draw_rotated_flag(cx, cy, theta_deg):
+    ctx.save()
+    ctx.translate(cx, cy)
+    ctx.rotate(theta_deg * math.pi / 180)
+    ctx.translate(-100, -65)  # 調整到左上角 (flag_w/2, flag_h/2)
+    draw_flag()
+    ctx.restore()
+
+
+#---------------------------------------------------------
+# 在畫布內畫出 90° 與 45° 的國旗
+#---------------------------------------------------------
+
+# 清空背景
+ctx.fillStyle = "white"
+ctx.fillRect(0, 0, 600, 400)
+
+# 左：順時針 90 度
+draw_rotated_flag(150, 200, 90)
+
+# 右：順時針 45 度
+draw_rotated_flag(450, 200, 45)
